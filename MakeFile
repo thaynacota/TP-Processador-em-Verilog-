@@ -1,0 +1,41 @@
+# ============================================================
+# MAKEFILE - Automação do Projeto RV32I
+# ============================================================
+
+SRC_DIR = src
+TB_DIR = tb
+PROG_DIR = programs
+SIM_DIR = sim
+
+SRC_FILES = $(wildcard $(SRC_DIR)/*.v)
+TB_FILES = $(wildcard $(TB_DIR)/*.v)
+
+SIM_EXEC = $(SIM_DIR)/simv
+VCD_FILE = $(SIM_DIR)/waveform.vcd
+
+# ===== TARGETS =====
+all: compile simulate
+
+$(SIM_DIR):
+	mkdir -p $(SIM_DIR)
+
+compile: $(SIM_DIR)
+	iverilog -g2012 -Wall -o $(SIM_EXEC) $(SRC_FILES) $(TB_FILES)
+
+simulate: compile
+	cd $(SIM_DIR) && vvp ../$(SIM_EXEC)
+
+view: simulate
+	gtkwave $(VCD_FILE) &
+
+clean:
+	rm -rf $(SIM_DIR)
+
+help:
+	@echo "Comandos disponíveis:"
+	@echo "  make compile    - Compilar o projeto"
+	@echo "  make simulate   - Executar simulação"
+	@echo "  make view       - Visualizar formas de onda"
+	@echo "  make clean      - Limpar arquivos gerados"
+
+.PHONY: all compile simulate view clean help
